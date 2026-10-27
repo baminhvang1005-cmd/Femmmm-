@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sổ tay tự học</title>
+  <style>
+    :root { --main:#356859; --light:#eef6f1; --ink:#20312b; --muted:#64746d; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Arial,sans-serif; background:#f5f7f5; color:var(--ink); line-height:1.5; }
+    header { background:var(--main); color:white; padding:28px 18px; text-align:center; }
+    header h1 { margin:0 0 6px; font-size:clamp(25px,5vw,36px); }
+    header p { margin:0; opacity:.92; }
+    main { width:min(900px,94%); margin:22px auto 40px; }
+    nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+    nav a { text-decoration:none; color:var(--main); background:white; border:1px solid #d8e4dc; border-radius:10px; padding:9px 13px; font-weight:bold; }
+    section { background:white; border-radius:14px; padding:18px; margin:14px 0; box-shadow:0 3px 12px #20312b0a; }
+    h2 { font-size:21px; margin:0 0 12px; color:var(--main); }
+    label { display:block; font-weight:bold; margin:10px 0 5px; }
+    input, textarea, select { width:100%; padding:11px; border:1px solid #cbd8cf; border-radius:8px; font:inherit; background:#fff; }
+    textarea { min-height:95px; resize:vertical; }
+    button { border:0; border-radius:8px; background:var(--main); color:white; padding:10px 14px; font:inherit; font-weight:bold; cursor:pointer; margin-top:10px; }
+    button:hover { filter:brightness(.93); }
+    .secondary { background:#e7eee9; color:var(--ink); }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .item { display:flex; align-items:flex-start; gap:10px; padding:11px 0; border-bottom:1px solid #edf1ee; }
+    .item:last-child { border-bottom:0; }
+    .item input[type=checkbox] { width:auto; margin-top:5px; }
+    .item-content { flex:1; overflow-wrap:anywhere; }
+    .done { text-decoration:line-through; color:var(--muted); }
+    .small { color:var(--muted); font-size:13px; }
+    .delete { background:#fbe9e7; color:#9b3028; padding:6px 9px; margin:0; }
+    .empty { color:var(--muted); font-style:italic; }
+    footer { text-align:center; color:var(--muted); padding:10px 16px 25px; font-size:13px; }
+    @media(max-width:600px) { .row { grid-template-columns:1fr; } section { padding:15px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📘 Sổ tay tự học</h1>
+    <p>Lập kế hoạch · Theo dõi nhiệm vụ · Ghi lại điều đã học</p>
+  </header>
+
+  <main>
+    <nav aria-label="Điều hướng">
+      <a href="#muctieu">Mục tiêu</a>
+      <a href="#nhiemvu">Nhiệm vụ</a>
+      <a href="#ghichu">Ghi chú</a>
+      <a href="#tongket">Tổng kết</a>
+    </nav>
+
+    <section id="muctieu">
+      <h2>🎯 Mục tiêu học tập</h2>
+      <label for="goal">Mục tiêu của bạn</label>
+      <textarea id="goal" placeholder="Ví dụ: Ôn lại bài Sinh học và làm bài tập Toán mỗi ngày."></textarea>
+      <button onclick="saveGoal()">Lưu mục tiêu</button>
+      <span id="goalStatus" class="small" aria-live="polite"></span>
+    </section>
+
+    <section id="nhiemvu">
+      <h2>✅ Danh sách nhiệm vụ</h2>
+      <div class="row">
+        <div>
+          <label for="taskName">Tên nhiệm vụ</label>
+          <input id="taskName" placeholder="Ví dụ: Làm 10 câu Toán">
+        </div>
+        <div>
+          <label for="taskDate">Hạn hoàn thành</label>
+          <input id="taskDate" type="date">
+        </div>
+      </div>
+      <label for="priority">Mức độ ưu tiên</label>
+      <select id="priority">
+        <option value="Bình thường">Bình thường</option>
+        <option value="Cao">Cao</option>
+        <option value="Thấp">Thấp</option>
+      </select>
+      <button onclick="addTask()">+ Thêm nhiệm vụ</button>
+      <div id="taskList" aria-live="polite"></div>
+    </section>
+
+    <section id="ghichu">
+      <h2>📝 Ghi chú học tập</h2>
+      <label for="noteTitle">Tiêu đề</label>
+      <input id="noteTitle" placeholder="Ví dụ: Kiến thức cần nhớ">
+      <label for="noteText">Nội dung ghi chú</label>
+      <textarea id="noteText" placeholder="Viết kiến thức, câu hỏi hoặc phần chưa hiểu..."></textarea>
+      <button onclick="saveNote()">Lưu ghi chú</button>
+      <div id="noteList" aria-live="polite"></div>
+    </section>
+
+    <section id="tongket">
+      <h2>📊 Tổng kết tiến độ</h2>
+      <p id="progressText">Bạn chưa có nhiệm vụ nào.</p>
+      <button class="secondary" onclick="exportData()">Xuất dữ liệu dự phòng</button>
+      <button class="secondary" onclick="clearAll()">Xóa toàn bộ dữ liệu</button>
+      <p class="small">Dữ liệu được lưu trên trình duyệt của thiết bị này. Nếu xóa dữ liệu trình duyệt hoặc đổi thiết bị, dữ liệu có thể mất. Hãy xuất dữ liệu dự phòng khi cần.</p>
+    </section>
+  </main>
+  <footer>Sổ tay tự học đơn giản — hãy học từng chút mỗi ngày 🌱</footer>
+
+<script>
+  const getData = (key, fallback) => {
+    try { const value = localStorage.getItem(key); return value ? JSON.parse(value) : fallback; }
+    catch { return fallback; }
+  };
+  let tasks = getData('studyNotebookTasks', []);
+  let notes = getData('studyNotebookNotes', []);
+  const goalBox = document.getElementById('goal');
+  goalBox.value = getData('studyNotebookGoal', '');
+
+  function saveGoal() {
+    localStorage.setItem('studyNotebookGoal', JSON.stringify(goalBox.value.trim()));
+    document.getElementById('goalStatus').textContent = ' — Đã lưu!';
+  }
+  function addTask() {
+    const name = document.getElementById('taskName').value.trim();
+    if (!name) { alert('Bạn hãy nhập tên nhiệm vụ.'); return; }
+    tasks.push({
+      id: Date.now().toString() + Math.random().toString(16).slice(2),
+      name,
+      date: document.getElementById('taskDate').value,
+      priority: document.getElementById('priority').value,
+      done: false
+    });
+    saveTasks();
+    document.getElementById('taskName').value = '';
+    document.getElementById('taskDate').value = '';
+  }
+  function saveTasks() {
+    localStorage.setItem('studyNotebookTasks', JSON.stringify(tasks));
+    renderTasks();
+  }
+  function toggleTask(id, checked) {
+    tasks = tasks.map(t => t.id === id ? {...t, done: checked} : t);
+    saveTasks();
+  }
+  function deleteTask(id) {
+    tasks = tasks.filter(t => t.id !== id);
+    saveTasks();
+  }
+  function renderTasks() {
+    const list = document.getElementById('taskList');
+    if (!tasks.length) list.innerHTML = '<p class="empty">Chưa có nhiệm vụ. Hãy thêm nhiệm vụ đầu tiên!</p>';
+    else {
+      list.innerHTML = '';
+      tasks.forEach(t => {
+        const item = document.createElement('div'); item.className = 'item';
+        const check = document.createElement('input'); check.type = 'checkbox'; check.checked = t.done;
+        check.setAttribute('aria-label', 'Đánh dấu hoàn thành'); check.addEventListener('change', () => toggleTask(t.id, check.checked));
+        const content = document.createElement('div'); content.className = 'item-content';
+        const title = document.createElement('div'); title.textContent = t.name; if (t.done) title.className = 'done';
+        const meta = document.createElement('div'); meta.className = 'small';
+        meta.textContent = (t.date ? 'Hạn: ' + t.date + ' · ' : '') + 'Ưu tiên: ' + t.priority;
+        content.append(title, meta);
+        const del = document.createElement('button'); del.className = 'delete'; del.textContent = 'Xóa'; del.addEventListener('click', () => deleteTask(t.id));
+        item.append(check, content, del); list.appendChild(item);
+      });
+    }
+    const completed = tasks.filter(t => t.done).length;
+    document.getElementById('progressText').textContent = tasks.length
+      ? `Đã hoàn thành ${completed}/${tasks.length} nhiệm vụ (${Math.round(completed / tasks.length * 100)}%).`
+      : 'Bạn chưa có nhiệm vụ nào.';
+  }
+  function saveNote() {
+    const title = document.getElementById('noteTitle').value.trim();
+    const body = document.getElementById('noteText').value.trim();
+    if (!title || !body) { alert('Hãy nhập cả tiêu đề và nội dung ghi chú.'); return; }
+    notes.unshift({id: Date.now().toString() + Math.random().toString(16).slice(2), title, body});
+    localStorage.setItem('studyNotebookNotes', JSON.stringify(notes));
+    document.getElementById('noteTitle').value = '';
+    document.getElementById('noteText').value = '';
+    renderNotes();
+  }
+  function deleteNote(id) {
+    notes = notes.filter(n => n.id !== id);
+    localStorage.setItem('studyNotebookNotes', JSON.stringify(notes));
+    renderNotes();
+  }
+  function renderNotes() {
+    const list = document.getElementById('noteList'); list.innerHTML = '';
+    if (!notes.length) { list.innerHTML = '<p class="empty">Chưa có ghi chú nào.</p>'; return; }
+    notes.forEach(n => {
+      const item = document.createElement('div'); item.className = 'item';
+      const content = document.createElement('div'); content.className = 'item-content';
+      const title = document.createElement('strong'); title.textContent = n.title;
+      const body = document.createElement('p'); body.textContent = n.body; body.style.margin = '5px 0';
+      content.append(title, body);
+      const del = document.createElement('button'); del.className = 'delete'; del.textContent = 'Xóa'; del.addEventListener('click', () => deleteNote(n.id));
+      item.append(content, del); list.appendChild(item);
+    });
+  }
+  function exportData() {
+    const data = {
+      goal: getData('studyNotebookGoal', ''),
+      tasks, notes,
+      exportedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'so-tay-tu-hoc-du-phong.json'; a.click();
+    URL.revokeObjectURL(url);
+  }
+  function clearAll() {
+    if (!confirm('Bạn có chắc muốn xóa toàn bộ mục tiêu, nhiệm vụ và ghi chú?')) return;
+    localStorage.removeItem('studyNotebookGoal');
+    localStorage.removeItem('studyNotebookTasks');
+    localStorage.removeItem('studyNotebookNotes');
+    tasks = []; notes = []; goalBox.value = '';
+    document.getElementById('goalStatus').textContent = '';
+    renderTasks(); renderNotes();
+  }
+  renderTasks(); renderNotes();
+</script>
+</body>
+</html>
